@@ -1,34 +1,32 @@
-const fs = require('fs')
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const bodyParser = require('body-parser')
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const bodyParser = require('body-parser');
+const { log } = require('console');
+const app = express();
 
-app.use(cors())
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-const data = {
-    load : ()=>{
-        const dataRead =  fs.readFileSync('./test.json');
-        const dataJson = JSON.parse(dataRead);
-        return dataJson;
-    },
-    save : (bodyObj)=>{
-        const getAll = data.load();
-        const insertObj =[...getAll,{id:getAll.length+1,...bodyObj}];
-        fs.writeFileSync('./test.json',JSON.stringify(insertObj))
-        return 'sccess';
-    }
-}
+app.get('/abc', function (req, res) {
+  const jsonData = fs.readFileSync('./test.json');
+  res.send(   JSON.parse(jsonData)   )
+})
 
+app.get('/abc/:id', function (req, res) {
+  const jsonData = fs.readFileSync('./test.json');
+  const data = JSON.parse(jsonData);
 
-app.get('/', function (req, res) {
-    res.send(data.load())
+  const {id} = req.params;
+  const aaa = data.filter(n=>n.id == id)
+
+  res.send(  aaa  )
 })
 
 app.post('/insert', function (req, res) {
-     res.send(data.save(req.body))
- })
+  fs.writeFileSync('./test.json',JSON.stringify(req.body)   );
+  res.send('성공');
+});
 
 app.listen(3000)
